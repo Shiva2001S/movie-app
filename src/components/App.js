@@ -2,13 +2,14 @@ import React from "react";
 import { data } from '../data';
 import Navbar from "./Navbar";
 import MovieCard from "./MovieCard";
-import { addMovies } from "../actions";
+import { addMovies, setShowFavourites } from "../actions";
 
 class App extends React.Component {
   componentDidMount() {
     const {store} = this.props;
     // This subscribe call back is called after dispatch fn
     // since our app already had movie data in store so we not doing anything so we have used this fn.
+    // suscribe is a function which helps in listening the changes in state of store 
     store.subscribe(()=>{
       // this fn helps in forcefully updating our app component
       this.forceUpdate();
@@ -20,31 +21,41 @@ class App extends React.Component {
   }
 
   isMovieFavourite = (movie) =>{
-    const {favourites} = this.props.store.getState();
+    const {movies} = this.props.store.getState();
 
-    const index = favourites.indexOf(movie);
+    const index = movies.favourites.indexOf(movie);
 
-    if(index != -1){ return true; }
+    if(index !== -1){ return true; }
     return false;
+  }
+
+  onChangeTab = (val)=>{
+    this.props.store.dispatch(setShowFavourites(val))
   }
   render() {
     // We want to get movies from store rather than our data file
     // const movies = this.props.store.getState();
 
-    const { list } = this.props.store.getState();
+    const { movies } = this.props.store.getState();
+    const { list, favourites, showFavourites } = movies;
     console.log("Render : ", this.props.store.getState());
+
+
+    const displayMovies = showFavourites ? favourites : list;
+    console.log("displayMovies : ",typeof displayMovies, " ", displayMovies);
     return (
       <div className="App">
-        <Navbar />
+        <Navbar dispatch={this.props.store.dispatch} />
         <div className="main">
           <div className="tabs">
-            <div className="tab">Movies</div>
-            <div className="tab">Favourites</div>
+            {/* In the below style if showFavourites is true then we are adding active-tabs class else we are not adding */}
+            <div className={`tab ${showFavourites ? '' : 'active-tabs'}`} onClick={()=>this.onChangeTab(false)}>Movies</div>
+            <div className={`tab ${showFavourites ? 'active-tabs' : ''}`} onClick={()=>this.onChangeTab(true)}>Favourites</div>
           </div>
 
           <div className="list">
             {
-              list.map((movie, index) => (
+              displayMovies.map((movie, index) => (
                 <MovieCard 
                 movie={movie} 
                 key={`movies-${index}`} 
@@ -54,6 +65,8 @@ class App extends React.Component {
               ))
             }
           </div>
+          {/* if displayMovies is not empty then we will show the movies else show null ie. nothing */}
+          {displayMovies.length === 0? <div className="no-movies">No Movies to display</div>: null}
         </div>
       </div>
     );
