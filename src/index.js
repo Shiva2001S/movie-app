@@ -4,6 +4,7 @@ import { createStore, applyMiddleware } from 'redux';
 // Since i am exporting combineReducers in reduers/index.js without creating a variable so i have to import it as like this only 
 import combineReducers  from './reducers/index';
 import thunk from 'redux-thunk';
+import { createContext } from 'react';
 
 // always keeps package imports above file imports
 import './index.css';
@@ -31,10 +32,12 @@ import App from './components/App';
 // This is another way by which we write logger fn
 const logger = ({dispatch, getState}) => (next) => (action) =>{
   // console.log('ACTION_TYPE = ', action.type);
+  // console.log('ACTION_TYPE = ', action);
   next(action);
 }
 
-// const thunk = ({dispatch, getState}) => (next) => (action) =>{
+// const thunk2 = ({dispatch, getState}) => (next) => (action) =>{
+//   console.log('action of thunk2 ', action);
 //   if(typeof action === 'function'){
 //     action(dispatch);
 //     return;
@@ -47,7 +50,7 @@ const logger = ({dispatch, getState}) => (next) => (action) =>{
 // But the state stored by store is read only we can only change it by reducers
 // store takes reducer as the argument and calls it and takes the default state(of reducer) if no state is passed to reducer
 const store  = createStore(combineReducers  , applyMiddleware(logger, thunk));
-console.log('store', store);
+// console.log('store', store);
 // console.log('store', store.getState());
 // // This dispatch fn helps in sending actions to store
 // store.dispatch({
@@ -56,9 +59,27 @@ console.log('store', store);
 // });
 
 // console.log('BEFORE STATE', store.getState());
+
+export const StoreContext = createContext();
+
+// this is how we create context api in react
+class Provider extends React.Component{
+  render(){
+    const {store} = this.props;
+    return (
+      // Whenever you changes this value's arguments then our app re-renders in that case
+      <StoreContext.Provider value={store}>
+        {this.props.children}
+      </StoreContext.Provider>
+    );
+  }
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App store = {store} />
+  <Provider store={store}>
+    <App />
+  </Provider>
   </React.StrictMode>
 );

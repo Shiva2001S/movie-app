@@ -1,26 +1,28 @@
 import React from "react";
-import {data} from '../data';
-import {addMovies, handleMovieSearch} from '../actions';
+// import {data} from '../data';
+import {addMovies, handleMovieSearch, addMovieToList} from '../actions';
+import { StoreContext } from "..";
 
 class Navbar extends React.Component {
   constructor(props){
     super();
     this.state = {
-      showSearchResults : true,
       searchText : ''
     };
   }
 
   handleAddToMovies = (movie) =>{
-    this.props.dispatch(addMovies(movie));
+    // this.props.dispatch(addMovies(movie));
+    this.props.dispatch(addMovieToList(movie));
     this.setState({
       showSearchResults : false
     });
   }
-
+  
   handleSearch = ()=>{
     const {searchText} = this.state;
-    console.log("hello");
+    // console.log('dispatch ',this.props.dispatch);
+    // console.log("hello");
     this.props.dispatch(handleMovieSearch(searchText));
   };
   handleChange = (e) => {
@@ -30,7 +32,8 @@ class Navbar extends React.Component {
   }
 
     render(){
-      const {showSearchResults} = this;
+      // const {showSearchResults} = this.state;
+      const {result : movie, showSearchResults} = this.props.search;
         return (
           <div className="nav">
             <div className="search-container">
@@ -41,11 +44,11 @@ class Navbar extends React.Component {
                   showSearchResults &&
                   <div className="search-results">
                     <div className="search-result">
-                      <img src={data[0].Poster} alt="search-pic" />
+                      <img src={movie.Poster} alt="search-pic" />
 
                       <div className="movie-info">
-                      <span>{data[0].Title}</span>
-                      <button onClick={()=>this.handleAddToMovies(data[0])} >
+                      <span>{movie.Title}</span>
+                      <button onClick={()=>this.handleAddToMovies(movie)} >
                         Add to Movies
                       </button>
                       </div>
@@ -58,5 +61,15 @@ class Navbar extends React.Component {
     }
 }
 
-export default Navbar;
+class NavbarWrapper extends React.Component {
+  render(){
+    return (
+      <StoreContext.Consumer>
+        {(store)=> <Navbar dispatch={store.dispatch} search={this.props.search} />}
+      </StoreContext.Consumer>
+    )
+  }
+}
+
+export default NavbarWrapper;
 
