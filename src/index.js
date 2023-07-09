@@ -1,10 +1,11 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom/client';
 import { createStore, applyMiddleware } from 'redux';
 // Since i am exporting combineReducers in reduers/index.js without creating a variable so i have to import it as like this only 
 import combineReducers from './reducers/index';
 import thunk from 'redux-thunk';
-import { createContext } from 'react';
+// import { createContext } from 'react';
 
 // always keeps package imports above file imports
 import './index.css';
@@ -61,61 +62,62 @@ const store = createStore(combineReducers, applyMiddleware(logger, thunk));
 
 // console.log('BEFORE STATE', store.getState());
 
-export const StoreContext = createContext();
+// export const StoreContext = createContext();
 
 // this is how we create context api in react
-class Provider extends React.Component {
-  render() {
-    const { store } = this.props;
-    return (
-      // Whenever you changes this value's arguments then our app re-renders in that case
-      <StoreContext.Provider value={store}>
-        {this.props.children}
-      </StoreContext.Provider>
-    );
-  }
-}
+// class Provider extends React.Component {
+//   render() {
+//     const { store } = this.props;
+//     return (
+//       // Whenever you changes this value's arguments then our app re-renders in that case
+//       <StoreContext.Provider value={store}>
+//         {this.props.children}
+//       </StoreContext.Provider>
+//     );
+//   }
+// }
 
-export function connect(callback) {
-  return function (Component) {
-    class ConnectedComponent extends React.Component {
-      constructor(props) {
-        super(props);
-        // we are doing this bcz we need that whenever the state of our component changes then it should re renders
-        this.unsubscribe = this.props.store.subscribe(() => this.forceUpdate());
-      }
-      componentWillUnmount() {
-        this.unsubscribe();
-      }
-      render() {
-        const { store } = this.props;
-        const state = store.getState();
-        const dataToBePassedAsProps = callback(state);
+// export function connect(callback) {
+//   return function (Component) {
+//     class ConnectedComponent extends React.Component {
+//       constructor(props) {
+//         super(props);
+//         // we are doing this bcz we need that whenever the state of our component changes then it should re renders
+//         this.unsubscribe = this.props.store.subscribe(() => this.forceUpdate());
+//       }
+//       componentWillUnmount() {
+//         this.unsubscribe();
+//       }
+//       render() {
+//         const { store } = this.props;
+//         const state = store.getState();
+//         const dataToBePassedAsProps = callback(state);
 
-        return (
-          <Component
-            {...dataToBePassedAsProps}
-            dispatch={store.dispatch}
-          />
-        );
-      }
-    }
-    class ConnectedComponentWrapper extends React.Component {
-      render() {
-        return (
-          <StoreContext.Consumer>
-            {(store) => <ConnectedComponent store={store} />}
-          </StoreContext.Consumer>
-        );
-      }
-    }
-    return ConnectedComponentWrapper;
-  };
-}
+//         return (
+//           <Component
+//             {...dataToBePassedAsProps}
+//             dispatch={store.dispatch}
+//           />
+//         );
+//       }
+//     }
+//     class ConnectedComponentWrapper extends React.Component {
+//       render() {
+//         return (
+//           <StoreContext.Consumer>
+//             {(store) => <ConnectedComponent store={store} />}
+//           </StoreContext.Consumer>
+//         );
+//       }
+//     }
+//     return ConnectedComponentWrapper;
+//   };
+// }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+  {/* Here provider is also coming from react-redux */}
     <Provider store={store}>
       <App />
     </Provider>
