@@ -3,7 +3,7 @@ import { data } from '../data';
 import Navbar from "./Navbar";
 import MovieCard from "./MovieCard";
 import { addMovies, setShowFavourites } from "../actions";
-import { StoreContext } from "../index";
+import { connect } from "../index";
 
 class App extends React.Component {
   componentDidMount() {
@@ -11,18 +11,18 @@ class App extends React.Component {
     // This subscribe call back is called after dispatch fn
     // since our app already had movie data in store so we not doing anything so we have used this fn.
     // suscribe is a function which helps in listening the changes in state of store 
-    store.subscribe(() => {
-      // this fn helps in forcefully updating our app component
-      this.forceUpdate();
-    })
+    // store.subscribe(() => {
+    //   // this fn helps in forcefully updating our app component
+    //   this.forceUpdate();
+    // })
     // This dispatch fn helps in sending actions to store
-    store.dispatch(addMovies(data));
+    this.props.dispatch(addMovies(data));
 
     // console.log('state', this.props.store.getState());
   }
 
   isMovieFavourite = (movie) => {
-    const { movies } = this.props.store.getState();
+    const { movies } = this.props;
 
     const index = movies.favourites.indexOf(movie);
 
@@ -31,13 +31,13 @@ class App extends React.Component {
   }
 
   onChangeTab = (val) => {
-    this.props.store.dispatch(setShowFavourites(val))
+    this.props.dispatch(setShowFavourites(val))
   }
   render() {
     // We want to get movies from store rather than our data file
     // const movies = this.props.store.getState();
 
-    const { movies, search } = this.props.store.getState();
+    const { movies, search } = this.props;
     const { list, favourites, showFavourites } = movies;
     // console.log("Render : ", this.props.store.getState());
 
@@ -62,7 +62,7 @@ class App extends React.Component {
                 <MovieCard
                   movie={movie}
                   key={`movies-${index}`}
-                  dispatch={this.props.store.dispatch}
+                  dispatch={this.props.dispatch}
                   isFavourite={this.isMovieFavourite(movie)}
                 />
               ))
@@ -79,15 +79,26 @@ class App extends React.Component {
 
 // since store is required by componentDidMount also so we have used AppWrapper
 // AppWrapper acts as a wrapper over App component 
-class AppWrapper extends React.Component {
-  render() {
-    return (
-      <StoreContext.Consumer>
-      {/* Here store is the name of the variable you passed in provider's value in src<<index.js */}
-        {(store) => <App store={store} /> }
-      </StoreContext.Consumer>
-    );
-  }
+// class AppWrapper extends React.Component {
+//   render() {
+//     return (
+//       <StoreContext.Consumer>
+//       {/* Here store is the name of the variable you passed in provider's value in src<<index.js */}
+//         {(store) => <App store={store} /> }
+//       </StoreContext.Consumer>
+//     );
+//   }
+// }
+
+// since for every component we needs to write wrapper so we have implemented connect fn
+function mapStateToProps(state) {
+  // this fn return this obj which is needed by my App component
+  return {
+    movies : state.movies,
+    search : state.movies
+  };
 }
 
-export default AppWrapper;
+const connectedComponent = connect(mapStateToProps)(App);
+
+export default connectedComponent;

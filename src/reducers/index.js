@@ -88,7 +88,7 @@ export function search(state = initialSearchState, action) {
                 showSearchResults: true
 
             }
-        case ADD_MOVIES:
+        // case ADD_MOVIES:
         case ADD_MOVIE_TO_LIST:
             console.log('ADD_MOVIES search state : ', state);
             return {
